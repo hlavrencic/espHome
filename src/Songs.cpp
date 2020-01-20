@@ -16,18 +16,20 @@ void Songs::StartSong(int *melody, int *noteDurations, int totalMelodies){
 };
 
 bool Songs::Tone(){
-  if (_toneDelay.elapsed() && _noteIndex < _totalMelodies) { // Loop through the notes in the array.
-    auto noteDuration = 500/_noteDurations[_noteIndex];
-    //NewTone(TONE_PIN, melody[thisNote], noteDuration); // Play thisNote for noteDuration.
-    tone(_pin, _melody[_noteIndex], noteDuration, BUZZER_CHANNEL);
-    //delay(noteDuration); // Wait while the tone plays in the background, plus another 33% delay between notes.
-    _toneDelay.start(noteDuration);
-    _noteIndex++;
-
-    return true;
+  if(_noteIndex >= _totalMelodies){
+    return false;
   }
 
-  return false;
+  if(!_toneDelay.elapsed()){
+    return false;
+  }
+
+  auto noteDuration = 500/_noteDurations[_noteIndex];
+  tone(_pin, _melody[_noteIndex], noteDuration, BUZZER_CHANNEL);
+  _toneDelay.start(noteDuration);
+  _noteIndex++;
+
+  return true;
 }
 
 bool Songs::HasFinished(){

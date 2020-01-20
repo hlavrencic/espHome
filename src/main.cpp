@@ -1,10 +1,9 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
-#include <ESPmDNS.h>
 #include <Update.h>
 
-//#include "IRremote.cpp"
+#include "IR.h"
 
 //#include "avdweb_VirtualDelay.h"
 #include "Songs.h"
@@ -22,9 +21,198 @@ const int RECV_PIN = 15;
 int melody[] = { 262, 196, 196, 220, 196, 0, 247, 262 };
 int noteDurations[] = { 4, 8, 8, 4, 4, 4, 4, 4 };
 
-//IRrecv irrecv(RECV_PIN);
-//decode_results results;
-//IRsend irsend;
+const int NOTE_B0 = 31;
+const int NOTE_CS1 = 35;
+const int NOTE_C1  = 33;
+const int NOTE_D1  = 37;
+const int NOTE_DS1 = 39;
+const int NOTE_E1  = 41;
+const int NOTE_F1  = 44;
+const int NOTE_FS1 = 46;
+const int NOTE_G1  = 49;
+const int NOTE_GS1 = 52;
+const int NOTE_A1  = 55;
+const int NOTE_AS1 = 58;
+const int NOTE_B1  = 62;
+const int NOTE_C2  = 65;
+const int NOTE_CS2 = 69;
+const int NOTE_D2  = 73;
+const int NOTE_DS2 = 78;
+const int NOTE_E2  = 82;
+const int NOTE_F2  = 87;
+const int NOTE_FS2 = 93;
+const int NOTE_G2  = 98;
+const int NOTE_GS2 = 104;
+const int NOTE_A2  = 110;
+const int NOTE_AS2 = 117;
+const int NOTE_B2  = 123;
+const int NOTE_C3  = 131;
+const int NOTE_CS3 = 139;
+const int NOTE_D3  = 147;
+const int NOTE_DS3 = 156;
+const int NOTE_E3  = 165;
+const int NOTE_F3  = 175;
+const int NOTE_FS3 = 185;
+const int NOTE_G3  = 196;
+const int NOTE_GS3 = 208;
+const int NOTE_A3  = 220;
+const int NOTE_AS3 = 233;
+const int NOTE_B3  = 247;
+const int NOTE_C4  = 262;
+const int NOTE_CS4 = 277;
+const int NOTE_D4  = 294;
+const int NOTE_DS4 = 311;
+const int NOTE_E4  = 330;
+const int NOTE_F4  = 349;
+const int NOTE_FS4 = 370;
+const int NOTE_G4  = 392;
+const int NOTE_GS4 = 415;
+const int NOTE_A4  = 440;
+const int NOTE_AS4 = 466;
+const int NOTE_B4  = 494;
+const int NOTE_C5  = 523;
+const int NOTE_CS5 = 554;
+const int NOTE_D5  = 587;
+const int NOTE_DS5 = 622;
+const int NOTE_E5  = 659;
+const int NOTE_F5  = 698;
+const int NOTE_FS5 = 740;
+const int NOTE_G5  = 784;
+const int NOTE_GS5 = 831;
+const int NOTE_A5  = 880;
+const int NOTE_AS5 = 932;
+const int NOTE_B5  = 988;
+const int NOTE_C6  = 1047;
+const int NOTE_CS6 = 1109;
+const int NOTE_D6  = 1175;
+const int NOTE_DS6 = 1245;
+const int NOTE_E6  = 1319;
+const int NOTE_F6  = 1397;
+const int NOTE_FS6 = 1480;
+const int NOTE_G6  = 1568;
+const int NOTE_GS6 = 1661;
+const int NOTE_A6  = 1760;
+const int NOTE_AS6 = 1865;
+const int NOTE_B6  = 1976;
+const int NOTE_C7  = 2093;
+const int NOTE_CS7 = 2217;
+const int NOTE_D7  = 2349;
+const int NOTE_DS7 = 2489;
+const int NOTE_E7  = 2637;
+const int NOTE_F7  = 2794;
+const int NOTE_FS7 = 2960;
+const int NOTE_G7  = 3136;
+const int NOTE_GS7 = 3322;
+const int NOTE_A7  = 3520;
+const int NOTE_AS7 = 3729;
+const int NOTE_B7  = 3951;
+const int NOTE_C8  = 4186;
+const int NOTE_CS8 = 4435;
+const int NOTE_D8  = 4699;
+const int NOTE_DS8 = 4978;
+ 
+#define melodyPin 3
+//Mario main theme melody
+int melodyMario[] = {
+  NOTE_E7, NOTE_E7, 0, NOTE_E7,
+  0, NOTE_C7, NOTE_E7, 0,
+  NOTE_G7, 0, 0,  0,
+  NOTE_G6, 0, 0, 0,
+ 
+  NOTE_C7, 0, 0, NOTE_G6,
+  0, 0, NOTE_E6, 0,
+  0, NOTE_A6, 0, NOTE_B6,
+  0, NOTE_AS6, NOTE_A6, 0,
+ 
+  NOTE_G6, NOTE_E7, NOTE_G7,
+  NOTE_A7, 0, NOTE_F7, NOTE_G7,
+  0, NOTE_E7, 0, NOTE_C7,
+  NOTE_D7, NOTE_B6, 0, 0,
+ 
+  NOTE_C7, 0, 0, NOTE_G6,
+  0, 0, NOTE_E6, 0,
+  0, NOTE_A6, 0, NOTE_B6,
+  0, NOTE_AS6, NOTE_A6, 0,
+ 
+  NOTE_G6, NOTE_E7, NOTE_G7,
+  NOTE_A7, 0, NOTE_F7, NOTE_G7,
+  0, NOTE_E7, 0, NOTE_C7,
+  NOTE_D7, NOTE_B6, 0, 0
+};
+//Mario main them tempo
+int tempoMario[] = {
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+ 
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+ 
+  9, 9, 9,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+ 
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+ 
+  9, 9, 9,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+  12, 12, 12, 12,
+};
+//Underworld melody
+int underworld_melody[] = {
+  NOTE_C4, NOTE_C5, NOTE_A3, NOTE_A4,
+  NOTE_AS3, NOTE_AS4, 0,
+  0,
+  NOTE_C4, NOTE_C5, NOTE_A3, NOTE_A4,
+  NOTE_AS3, NOTE_AS4, 0,
+  0,
+  NOTE_F3, NOTE_F4, NOTE_D3, NOTE_D4,
+  NOTE_DS3, NOTE_DS4, 0,
+  0,
+  NOTE_F3, NOTE_F4, NOTE_D3, NOTE_D4,
+  NOTE_DS3, NOTE_DS4, 0,
+  0, NOTE_DS4, NOTE_CS4, NOTE_D4,
+  NOTE_CS4, NOTE_DS4,
+  NOTE_DS4, NOTE_GS3,
+  NOTE_G3, NOTE_CS4,
+  NOTE_C4, NOTE_FS4, NOTE_F4, NOTE_E3, NOTE_AS4, NOTE_A4,
+  NOTE_GS4, NOTE_DS4, NOTE_B3,
+  NOTE_AS3, NOTE_A3, NOTE_GS3,
+  0, 0, 0
+};
+//Underwolrd tempo
+int underworld_tempo[] = {
+  12, 12, 12, 12,
+  12, 12, 6,
+  3,
+  12, 12, 12, 12,
+  12, 12, 6,
+  3,
+  12, 12, 12, 12,
+  12, 12, 6,
+  3,
+  12, 12, 12, 12,
+  12, 12, 6,
+  6, 18, 18, 18,
+  6, 6,
+  6, 6,
+  6, 6,
+  18, 18, 18, 18, 18, 18,
+  10, 10, 10,
+  10, 10, 10,
+  3, 3, 3
+};
+
+
+IR ir(RECV_PIN);  // do not change the objectname, it must be "ir"
 Songs songs(BUZZER_PIN);
 
 /*
@@ -77,6 +265,7 @@ const char* loginIndex =
  */
  
 const char* serverIndex = 
+"<h1>UPLOADER</h1>"
 "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
 "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
    "<input type='file' name='update'>"
@@ -129,19 +318,16 @@ void pageSetup(){
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  /*use mdns for host name resolution*/
-  if (!MDNS.begin(host)) { //http://esp32.local
-    Serial.println("Error setting up MDNS responder!");
-    while (1) {
-      delay(1000);
-    }
-  }
   Serial.println("mDNS responder started");
   /*return index page which is stored in serverIndex */
   server.on("/", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", loginIndex);
   });
+  server.on("/version", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/json", "{ version: '0.0.0.1' }");
+  });  
   server.on("/serverIndex", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex);
@@ -183,35 +369,47 @@ void setup(void) {
   
   pageSetup();
 
-  //irrecv.enableIRIn(); // Start the receiver
-
+  ir.begin();  // Init InfraredDecoder
+  
   // Set pin mode
   pinMode(0, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
+int button0;
+
 void loop(void) {
   
-  songs.Tone();  
+  songs.Tone(); 
+  ir.loop(); 
   
-  auto val = digitalRead(0);
-  if(!val){
+  
+  if(button0 && !digitalRead(0)){
+    songs.StartSong(melodyMario, tempoMario, 78);
+  }
+  button0 = digitalRead(0);
+
+  server.handleClient();
+}
+
+//--------------------------------------------------------------
+//   events called from IR Library
+//--------------------------------------------------------------
+void ir_res(uint32_t res){
+  Serial.print("ir_res: ");
+  Serial.println(res);
+
+  if(res == 0x20DF22DD){
     songs.StartSong(melody, noteDurations, 8);
   }
+}
 
-  /*
-  if (irrecv.decode(&results)) {
-    Serial.print(millis());
-    Serial.print(" - ");
-    Serial.println(results.value, HEX);
-    switch(results.value){
-      case 0x20DF22DD:
-        songs.StartSong(melody, noteDurations, 8);
-        break;
-    }
-    
-    irrecv.resume(); // Receive the next value
-  }
-  */
-  server.handleClient();
+void ir_number(const char* num){
+    Serial.print("ir_number: ");
+    Serial.println(num);
+}
+
+void ir_key(const char* key){
+    Serial.print("ir_key: ");
+    Serial.println(key);
 }
