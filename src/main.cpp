@@ -307,11 +307,17 @@ void pageSetup(){
   WiFi.begin(ssid, password);
   Serial.println("");
 
+
+  auto intentos = 3;
+
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED && intentos > 0) {
     delay(500);
     Serial.print(".");
+    intentos--;
   }
+
+  
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
@@ -366,14 +372,16 @@ void pageSetup(){
 void setup(void) {
   Serial.begin(9600);
 
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(0, INPUT_PULLUP);
+  
+  digitalWrite(LED_BUILTIN, HIGH);
   
   pageSetup();
 
   ir.begin();  // Init InfraredDecoder
   
-  // Set pin mode
-  pinMode(0, INPUT_PULLUP);
-  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 int button0;
